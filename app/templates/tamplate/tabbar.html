@@ -1,0 +1,31 @@
+<!--Tabbar Section-->
+<div class="main-panel">
+    <div class="content-wrapper">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="home-tab">
+            <div class="d-sm-flex align-items-center justify-content-between border-bottom">
+              <div>
+                <div class="btn-wrapper">
+                  <a href="/vital_patient/{{ bed_id }}" class="btn btn-outline-primary align-items-center {{ text }} {{ active }}"><i class="mdi mdi-chart-timeline-variant menu-icon"></i>Vital Patient</a>
+                  <a href="/sofa/{{ bed_id }}" class="btn btn-outline-primary align-items-center {{ text_sofa }} {{ active_sofa }}"><i class="mdi mdi-currency-usd menu-icon"></i>SOFA Score</a>
+                  <a href="/treatment_recommendation/{{ bed_id }}" class="btn btn-outline-primary align-items-center {{ text_treatment }} {{ active_treatment }}"><i class="mdi mdi-finance menu-icon"></i>Treatment Recommendation</a>
+                  <a href="/forecasting/{{ bed_id }}" class="btn btn-outline-primary align-items-center {{ text_fore }} {{ active_fore }}"><i class="mdi mdi-chart-line menu-icon"></i>Forecasting</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          $(document).ready(function() {
+            $('.home-tab .btn').on('click', function(e) {
+              $('.home-tab .btn').removeClass('text-white active'); // Hapus kelas 'active' dari semua tombol
+            });
+          });
+        </script>
+      
+      <!-- JS -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

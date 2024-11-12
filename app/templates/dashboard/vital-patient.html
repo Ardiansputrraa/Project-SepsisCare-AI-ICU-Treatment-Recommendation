@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "tamplate/header.html" %}
+
+    <script>
+      let currentIndex = 0;
+      let chartHeart, chartRespiratory, chartSp, chartSystolic, chartDiastolic, chartMean, chartGcs, chartSofa, chartSirs;
+      let dataVital = [];
+    
+      $(document).ready(function () {
+        fetchVitalData();
+        setInterval(fetchNextData, 6000);
+      });
+    
+      function fetchVitalData() {
+        $.ajax({
+          url: "/get_vital_data/{{ bed_id }}",
+          type: "GET",
+          success: function (data) {
+            dataVital = data;
+            initializeChart();
+          },
+          error: function (err) {
+            console.error("Error fetching data: ", err);
+          },
+        });
+      }
+    
+      function initializeChart() {
+        let dummyData = new Array(5).fill(0);
+    
+        function createChart(ctx, label, bgColor, borderColor) {
+          return new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: ["", "", "", "", ""],
+              datasets: [
+                {
+                  label: label,
+                  data: [...dummyData],
+                  backgroundColor: bgColor,
+                  borderColor: borderColor,
+                  pointStyle: "line",
+                  fill: false,
+                },
+              ],
+            },
+            options: {
+              scales: {
+                x: {
+                  display: true,
+                },
+                y: {
+                  beginAtZero: true,
+                },
+              },
+              animation: false,
+            },
+          });
+        }
+    
+        chartHeart = createChart($("#heart").get(0).getContext("2d"), "Heart Rate", "rgba(2, 62, 138, 1)", "rgba(2, 62, 138, 1)");
+        chartRespiratory = createChart($("#respiratory").get(0).getContext("2d"), "Respiratory Rate", "rgba(0, 150, 199, 1)", "rgba(0, 150, 199, 1)");
+        chartSp = createChart($("#sp").get(0).getContext("2d"), "Sp02", "rgba(0, 180, 216, 1)", "rgba(0, 180, 216, 1)");
+        chartSystolic = createChart($("#systolic").get(0).getContext("2d"), "Systolic BP", "rgba(255, 143, 163, 1)", "rgba(255, 143, 163, 1)");
+        chartDiastolic = createChart($("#diastolic").get(0).getContext("2d"), "Diastolic BP", "rgba(255, 77, 109, 1)", "rgba(255, 77, 109, 1)");
+        chartMean = createChart($("#mean").get(0).getContext("2d"), "Mean BP", "rgba(201, 24, 74, 1)", "rgba(201, 24, 74, 1)");
+        chartGcs = createChart($("#gcs").get(0).getContext("2d"), "GCS", "rgba(216, 87, 42, 1)", "rgba(216, 87, 42, 1)");
+        chartSofa = createChart($("#sofa").get(0).getContext("2d"), "SOFA", "rgba(219, 124, 38, 1)", "rgba(219, 124, 38, 1)");
+        chartSirs = createChart($("#sirs").get(0).getContext("2d"), "SIRS", "rgba(247, 181, 56, 1)", "rgba(247, 181, 56, 1)");
+      }
+    
+      function fetchNextData() {
+        if (dataVital.length > 0) {
+          if (currentIndex < dataVital.length - 1) {
+            updateChart();
+            currentIndex++;
+          }
+        }
+      }
+    
+      function updateChart() {
+        if (dataVital.length > 0) {
+          function shiftAndPush(chart, newData) {
+            if (chart.data.labels.length >= 5) {
+              chart.data.labels.shift();
+              chart.data.datasets[0].data.shift();
+            }
+            chart.data.labels.push(dataVital[currentIndex].charttime);
+            chart.data.datasets[0].data.push(newData);
+            chart.update();
+          }
+    
+          shiftAndPush(chartHeart, dataVital[currentIndex].HR);
+          shiftAndPush(chartRespiratory, dataVital[currentIndex].RR);
+          shiftAndPush(chartSp, dataVital[currentIndex].SpO2);
+          shiftAndPush(chartSystolic, dataVital[currentIndex].SysBP);
+          shiftAndPush(chartDiastolic, dataVital[currentIndex].DiaBP);
+          shiftAndPush(chartMean, dataVital[currentIndex].MeanBP);
+          shiftAndPush(chartGcs, dataVital[currentIndex].GCS);
+          shiftAndPush(chartSofa, dataVital[currentIndex].SOFA);
+          shiftAndPush(chartSirs, dataVital[currentIndex].SIRS);
+        }
+      }
+    </script>
+    
+  </head>
+
+  <body class="with-welcome-text">
+    <div class="container-scroller">
+      
+        {% include "tamplate/navbar.html" %}
+
+      <div class="container-fluid page-body-wrapper">
+        {% include "tamplate/sidebar.html" %} {% include "tamplate/tabbar.html"
+        %}
+
+        <!--Chart Bed Selected-->
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title"></h4>
+              <canvas id="heart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title"></h4>
+              <canvas id="respiratory"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body p-3">
+              <h4 class="card-title"></h4>
+              <canvas id="sp"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body p-3">
+              <h4 class="card-title"></h4>
+              <canvas id="systolic"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body p-3">
+              <h4 class="card-title"></h4>
+              <canvas id="diastolic"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body p-3">
+              <h4 class="card-title"></h4>
+              <canvas id="mean"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body p-3">
+              <h4 class="card-title"></h4>
+              <canvas id="gcs"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body p-3">
+              <h4 class="card-title"></h4>
+              <canvas id="sofa"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body p-3">
+              <h4 class="card-title"></h4>
+              <canvas id="sirs"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!--End Chart Bed Selected-->
+
+        {% include "tamplate/footer.html" %}
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "tamplate/header.html" %}
+
+    <script>
+      $(document).ready(function () {
+        fetchSummaryData();
+      });
+
+      function fetchSummaryData() {
+        $.ajax({
+            url: "/get_summary/{{ stay_id }}",
+            type: "GET",
+            success: function (data) {
+                dataSummary = data["data_summary"];
+                stayId = data["stay_id"];
+                $("#detailSummary").empty();
+                for (let i = 0; i < dataSummary.length; i++) {
+                    if (dataSummary[i]['stayId'] === stayId){
+                        let medicalHistory = dataSummary[i].medichistory;
+                        let currentCondition = dataSummary[i].condition;
+                        
+                        let medicalHistoryItems = medicalHistory.map(item => `<li>${item}</li>`).join('');
+                        let currentConditionItems = currentCondition.map(item => `<li>${item}</li>`).join('');
+    
+                        let detailTemp = `
+                         <a href="/similarity" class="position-absolute" style="top: 10px; right: 10px;">
+                          <i class="mdi mdi-close-thick text-warning" style=" font-size: 2rem; color: #000;"></i>
+                        </a>
+                            <h3 class="welcome-text" style="margin-bottom: 35px"><b>Patient Summary</b></h3>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>ID:</b> ${dataSummary[i].id}</h5>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Age:</b> ${dataSummary[i].age}</h5>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Gender:</b> ${dataSummary[i].gender}</h5>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Admission Date:</b> ${dataSummary[i].date}</h5>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Primary Diagnosis:</b> ${dataSummary[i].diagnosis}</h5>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Medical History:</b></h5>
+                            <ul>${medicalHistoryItems}</ul>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Current Condition:</b></h5>
+                            <ul>${currentConditionItems}</ul>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Plan:</b></h5>
+                            <ul><li>-</li></ul>
+                        `;
+                        
+                        $("#detailSummary").append(detailTemp);
+                        console.log(dataSummary);
+                    }
+                }
+            },
+            error: function (err) {
+                console.error("Error fetching data: ", err);
+            },
+        });
+    }
+    
+    </script>
+
+  </head>
+  
+  <body class="with-welcome-text">
+    <div class="container-scroller">
+      
+          {% include "tamplate/navbar.html" %}
+
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+
+        {% include "tamplate/sidebar.html" %}
+        
+        <div class="main-panel">
+            <div class="content-wrapper">
+              <div class="row">
+              
+                <div class="col-lg-12 grid-margin stretch-card">
+                    <div class="card">
+                      <div class="card-body position-relative" id="detailSummary">
+                        
+                        <h3 class="welcome-text" style="margin-bottom: 35px"><b>Patient Summary</b></h3>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>ID:</b> </h5>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Age:</b> </h5>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Gender:</b> </h5>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Admission Date:</b> </h5>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Primary Diagnosis:</b> </h5>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Medical History:</b></h5>
+                            <ul><li>-</li></ul>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Current Condition:</b></h5>
+                            <ul><li>-</li></ul>
+                            <h5 class="welcome-text" style="margin-bottom: 20px"><b>Plan:</b></h5>
+                            <ul><li>-</li></ul>
+
+                      </div>
+                    </div>
+                  </div>
+
+        {% include "tamplate/footer.html" %}
+
+        </div>
+      </div>
+  </body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "tamplate/header.html" %}
+
+    <script>
+      let currentIndex = 0;
+      let chartHeart,
+        chartRespiratory,
+        chartMean;
+      let dataVital = [];
+      let date, hours, minutes, seconds, now;
+      let dataHeartPredict = { x: null, y: null };
+      let dataMeanPredict = { x: null, y: null };
+      let dataRespiratoryPredict = { x: null, y: null };
+      let chartHeartPredict, chartRespiratoryPredict, chartMeanPredict;
+
+      $(document).ready(function () {
+        fetchVitalData();
+        setInterval(fetchNextData, 6000);
+      });
+
+      function fetchVitalData() {
+        $.ajax({
+          url: "/get_vital_data/{{ bed_id }}",
+          type: "GET",
+          success: function (data) {
+            dataVital = data;
+            date = new Date();
+            hours = String(date.getHours()).padStart(2, '0');   
+            minutes = String(date.getMinutes()).padStart(2, '0'); 
+            seconds = String(date.getSeconds()).padStart(2, '0'); 
+            now = `${hours}:${minutes}:${seconds}`;
+            dataHeartPredict = { x: now, y: Math.floor(Math.random() * 5) };
+            dataMeanPredict = { x: now, y: Math.floor(Math.random() * 5) };
+            dataRespiratoryPredict = { x: now, y: Math.floor(Math.random() * 5) };
+            initializeChart();
+            if (dataVital.length > 1) {
+              // Update Chart Heart Rate
+              chartHeart.data.labels.push(dataVital[currentIndex].charttime);
+              chartHeart.data.datasets[0].data.push(dataVital[0].HR);
+              chartHeart.update(); 
+
+              // Update Chart Respiratory Rate
+              chartRespiratory.data.labels.push(dataVital[currentIndex].charttime);
+              chartRespiratory.data.datasets[0].data.push(dataVital[0].RR);
+              chartRespiratory.update(); 
+
+              // Update Chart Mean BP
+              chartMean.data.labels.push(dataVital[currentIndex].charttime);
+              chartMean.data.datasets[0].data.push(dataVital[0].MeanBP);
+              chartMean.update();
+
+              // Update Heart Rate Predict
+              chartHeartPredict.data.labels.push(now);
+              chartHeartPredict.data.datasets[0].data.push(dataHeartPredict.y);
+              chartHeartPredict.update(); 
+
+              // Update Respiratory Rate Predict
+              chartRespiratoryPredict.data.labels.push(now);
+              chartRespiratoryPredict.data.datasets[0].data.push(dataRespiratoryPredict.y);
+              chartRespiratoryPredict.update(); 
+
+              // Update Mean Rate Predict
+              chartMeanPredict.data.labels.push(now);
+              chartMeanPredict.data.datasets[0].data.push(dataMeanPredict.y);
+              chartMeanPredict.update(); 
+            }
+          },
+          error: function (err) {
+            console.error("Error fetching data: ", err);
+          },
+        });
+      }
+
+      function fetchNextData() {
+        if (dataVital.length > 0) {
+          if (currentIndex < dataVital.length - 1) {
+            date = new Date();
+            hours = String(date.getHours()).padStart(2, '0');   
+            minutes = String(date.getMinutes()).padStart(2, '0'); 
+            seconds = String(date.getSeconds()).padStart(2, '0'); 
+            now = `${hours}:${minutes}:${seconds}`;
+            dataHeartPredict = { x: now, y: Math.floor(Math.random() * 5) };
+            dataMeanPredict = { x: now, y: Math.floor(Math.random() * 5) };
+            dataRespiratoryPredict = { x: now, y: Math.floor(Math.random() * 5) };
+            currentIndex++;
+            updateChart();
+          }
+        }
+      }
+
+      function initializeChart() {
+        // Chart Heart Rate
+        let ctxHeart = $("#heart").get(0).getContext("2d");
+        chartHeart = new Chart(ctxHeart, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Heart Rate",
+                data: [],
+                backgroundColor: "rgba(2, 62, 138, 1)",
+                borderColor: "rgba(2, 62, 138, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                display: false,
+              },
+              y: {
+                beginAtZero: true,
+              },
+            },
+            animation: false,
+          },
+        }); 
+
+        // Chart Respiratory Rate
+        let ctxRespiratory = $("#respiratory").get(0).getContext("2d");
+        chartRespiratory = new Chart(ctxRespiratory, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Respiratory Rate",
+                data: [],
+                backgroundColor: "rgba(0, 150, 199, 1)",
+                borderColor: "rgba(0, 150, 199, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                display: false,
+              },
+              y: {
+                beginAtZero: true,
+              },
+            },
+            animation: false,
+          },
+        }); 
+
+        // Chart Mean BP
+        let ctxMean = $("#mean").get(0).getContext("2d");
+        chartMean = new Chart(ctxMean, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Mean BP",
+                data: [],
+                backgroundColor: "rgba(201, 24, 74, 1)",
+                borderColor: "rgba(201, 24, 74, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                display: false,
+              },
+              y: {
+                beginAtZero: true,
+              },
+            },
+            animation: false,
+          },
+        });
+
+        // Chart Heart Rate Predict
+        let ctxHeartPredict = $("#heart-predict").get(0).getContext("2d");
+        chartHeartPredict = new Chart(ctxHeartPredict, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Heart Rate Predict",
+                data: [],
+                backgroundColor: "rgba(2, 62, 138, 1)",
+                borderColor: "rgba(2, 62, 138, 1)",
+                pointStyle: "circle",
+                borderDash: [5, 5],
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                display: false,
+              },
+              y: {
+                beginAtZero: true,
+              },
+            },
+            animation: false,
+          },
+        }); 
+
+        // Chart Respiratory Rate Predict
+        let ctxRespiratoryPredict = $("#respiratory-predict").get(0).getContext("2d");
+        chartRespiratoryPredict = new Chart(ctxRespiratoryPredict, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Respiratory Rate Predict",
+                data: [],
+                backgroundColor: "rgba(0, 150, 199, 1)",
+                borderColor: "rgba(0, 150, 199, 1)",
+                pointStyle: "circle",
+                borderDash: [5, 5],
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                display: false,
+              },
+              y: {
+                beginAtZero: true,
+              },
+            },
+            animation: false,
+          },
+        }); 
+
+        // Chart Mean BP Predict
+        let ctxMeanPredict = $("#mean-predict").get(0).getContext("2d");
+        chartMeanPredict = new Chart(ctxMeanPredict, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Mean BP Predict",
+                data: [],
+                backgroundColor: "rgba(201, 24, 74, 1)",
+                borderColor: "rgba(201, 24, 74, 1)",
+                pointStyle: "circle",
+                borderDash: [5, 5],
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                display: false,
+              },
+              y: {
+                beginAtZero: true,
+              },
+            },
+            animation: false,
+          },
+        });
+      }
+
+      function updateChart() {
+        if (dataVital.length > 0) {
+          if (chartHeart.data.labels.length >= 4) {
+            // Delete Chart Heart Rate
+            chartHeart.data.labels.shift();
+            chartHeart.data.datasets[0].data.shift(); 
+
+            // Delete Chart Respiratory Rate
+            chartRespiratory.data.labels.shift();
+            chartRespiratory.data.datasets[0].data.shift(); 
+
+            // Delete Chart Mean BP
+            chartMean.data.labels.shift();
+            chartMean.data.datasets[0].data.shift();
+
+            // Delete Chart Heart Rate Predict
+            chartHeartPredict.data.labels.shift();
+            chartHeartPredict.data.datasets[0].data.shift(); 
+
+            // Delete Chart Respiratory Rate Predict
+            chartRespiratoryPredict.data.labels.shift();
+            chartRespiratoryPredict.data.datasets[0].data.shift(); 
+
+            // Delete Chart Mean BP Predict
+            chartMeanPredict.data.labels.shift();
+            chartMeanPredict.data.datasets[0].data.shift();
+          } 
+
+          // Update Chart Heart Rate
+          let newHeartRate = dataVital[currentIndex].HR;
+          chartHeart.data.labels.push((dataVital[currentIndex].charttime));
+          chartHeart.data.datasets[0].data.push(newHeartRate);
+          chartHeart.update(); 
+
+          // Update Chart Respiratory Rate
+          let newResporatoryRate = dataVital[currentIndex].RR;
+          chartRespiratory.data.labels.push((dataVital[currentIndex].charttime));
+          chartRespiratory.data.datasets[0].data.push(newResporatoryRate);
+          chartRespiratory.update(); 
+
+          // Update Chart Mean BP
+          let newMean = dataVital[currentIndex].MeanBP;
+          chartMean.data.labels.push((dataVital[currentIndex].charttime));
+          chartMean.data.datasets[0].data.push(newMean);
+          chartMean.update(); 
+
+          // Update Heart Rate Predict
+          chartHeartPredict.data.labels.push(now);
+          chartHeartPredict.data.datasets[0].data.push(dataHeartPredict.y);
+          chartHeartPredict.update(); 
+
+          // Update Respiratory Rate Predict
+          chartRespiratoryPredict.data.labels.push(now);
+          chartRespiratoryPredict.data.datasets[0].data.push(dataRespiratoryPredict.y);
+          chartRespiratoryPredict.update(); 
+
+          // Update Mean Rate Predict
+          chartMeanPredict.data.labels.push(now);
+          chartMeanPredict.data.datasets[0].data.push(dataMeanPredict.y);
+          chartMeanPredict.update(); 
+        }
+      }
+
+      
+      
+    </script>
+
+  </head>
+
+  <body class="with-welcome-text">
+    <div class="container-scroller">
+
+          {% include "tamplate/navbar.html" %}
+
+      <div class="container-fluid page-body-wrapper">
+        {% include "tamplate/sidebar.html" %} 
+        
+        {% include "tamplate/tabbar.html" %}
+
+        <!--Chart Forecasting-->
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title"></h4>
+              <canvas id="heart" style="height: 100%"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title"></h4>
+              <canvas id="respiratory" style="height: 100%"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body p-3">
+              <h4 class="card-title"></h4>
+              <canvas id="mean" style="height: 100%"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title"></h4>
+                <canvas id="heart-predict" style="height: 100%"></canvas>
+              </div>
+            </div>
+          </div>
+  
+          <div class="col-lg-4 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title"></h4>
+                <canvas id="respiratory-predict" style="height: 100%"></canvas>
+              </div>
+            </div>
+          </div>
+  
+          <div class="col-lg-4 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body p-3">
+                <h4 class="card-title"></h4>
+                <canvas id="mean-predict" style="height: 100%"></canvas>
+              </div>
+            </div>
+          </div>
+
+        <!--End Chart Forecasting-->
+
+        {% include "tamplate/footer.html" %}
+
+      </div>
+    </div>
+  </body>
+</html>
+
+

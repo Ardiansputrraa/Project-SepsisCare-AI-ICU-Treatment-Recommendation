@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "tamplate/header.html" %}
+
+    <script>
+      let currentIndex = 0;
+      let chart;
+      let dataVital = [];
+      let dataInput = {};
+      const physicianAction = [
+        ["0 ug/kg/h dose of vasopressor", "0 ml dose of iv fluid"],
+        [">0-0.110 ug/kg/h dose of vasopressor", "0 ml dose of iv fluid"],
+        ["0.110-0.225 ug/kg/h dose of vasopressor", "0 ml dose of iv fluid"],
+        ["0.225-0.450 ug/kg/h dose of vasopressor", "0 ml dose of iv fluid"],
+        [">0.450 ug/kg/h dose of vasopressor", "0 ml dose of iv fluid"],
+        ["0 ug/kg/h dose of vasopressor", ">0-40 ml dose of iv fluid"],
+        [">0-0.110 ug/kg/h dose of vasopressor", ">0-40 ml dose of iv fluid"],
+        [
+          "0.110-0.225 ug/kg/h dose of vasopressor",
+          ">0-40 ml dose of iv fluid",
+        ],
+        [
+          "0.225-0.450 ug/kg/h dose of vasopressor",
+          ">0-40 ml dose of iv fluid",
+        ],
+        [">0.450 ug/kg/h dose of vasopressor", ">0-40 ml dose of iv fluid"],
+        ["0 ug/kg/h dose of vasopressor", "40-205 ml dose of iv fluid"],
+        [">0-0.110 ug/kg/h dose of vasopressor", "40-205 ml dose of iv fluid"],
+        [
+          "0.110-0.225 ug/kg/h dose of vasopressor",
+          "40-205 ml dose of iv fluid",
+        ],
+        [
+          "0.225-0.450 ug/kg/h dose of vasopressor",
+          "40-205 ml dose of iv fluid",
+        ],
+        [">0.450 ug/kg/h dose of vasopressor", "40-205 ml dose of iv fluid"],
+        ["0 ug/kg/h dose of vasopressor", "205-635 ml dose of iv fluid"],
+        [">0-0.110 ug/kg/h dose of vasopressor", "205-635 ml dose of iv fluid"],
+        [
+          "0.110-0.225 ug/kg/h dose of vasopressor",
+          "205-635 ml dose of iv fluid",
+        ],
+        [
+          "0.225-0.450 ug/kg/h dose of vasopressor",
+          "205-635 ml dose of iv fluid",
+        ],
+        [">0.450 ug/kg/h dose of vasopressor", "205-635 ml dose of iv fluid"],
+        ["0 ug/kg/h dose of vasopressor", ">635 ml dose of iv fluid"],
+        [">0-0.110 ug/kg/h dose of vasopressor", ">635 ml dose of iv fluid"],
+        ["0.110-0.225 ug/kg/h dose of vasopressor", ">635 ml dose of iv fluid"],
+        ["0.225-0.450 ug/kg/h dose of vasopressor", ">635 ml dose of iv fluid"],
+        [">0.450 ug/kg/h dose of vasopressor", ">635 ml dose of iv fluid"],
+      ];
+
+      const recommendations = [
+        ["0 ug/kg/h dose of vasopressor", "0 ml dose of iv fluid"],
+        [">0-0.110 ug/kg/h dose of vasopressor", "0 ml dose of iv fluid"],
+        ["0.110-0.225 ug/kg/h dose of vasopressor", "0 ml dose of iv fluid"],
+        ["0.225-0.450 ug/kg/h dose of vasopressor", "0 ml dose of iv fluid"],
+        [">0.450 ug/kg/h dose of vasopressor", "0 ml dose of iv fluid"],
+        ["0 ug/kg/h dose of vasopressor", ">0-40 ml dose of iv fluid"],
+        [">0-0.110 ug/kg/h dose of vasopressor", ">0-40 ml dose of iv fluid"],
+        [
+          "0.110-0.225 ug/kg/h dose of vasopressor",
+          ">0-40 ml dose of iv fluid",
+        ],
+        [
+          "0.225-0.450 ug/kg/h dose of vasopressor",
+          ">0-40 ml dose of iv fluid",
+        ],
+        [">0.450 ug/kg/h dose of vasopressor", ">0-40 ml dose of iv fluid"],
+        ["0 ug/kg/h dose of vasopressor", "40-205 ml dose of iv fluid"],
+        [">0-0.110 ug/kg/h dose of vasopressor", "40-205 ml dose of iv fluid"],
+        [
+          "0.110-0.225 ug/kg/h dose of vasopressor",
+          "40-205 ml dose of iv fluid",
+        ],
+        [
+          "0.225-0.450 ug/kg/h dose of vasopressor",
+          "40-205 ml dose of iv fluid",
+        ],
+        [">0.450 ug/kg/h dose of vasopressor", "40-205 ml dose of iv fluid"],
+        ["0 ug/kg/h dose of vasopressor", "205-635 ml dose of iv fluid"],
+        [">0-0.110 ug/kg/h dose of vasopressor", "205-635 ml dose of iv fluid"],
+        [
+          "0.110-0.225 ug/kg/h dose of vasopressor",
+          "205-635 ml dose of iv fluid",
+        ],
+        [
+          "0.225-0.450 ug/kg/h dose of vasopressor",
+          "205-635 ml dose of iv fluid",
+        ],
+        [">0.450 ug/kg/h dose of vasopressor", "205-635 ml dose of iv fluid"],
+        ["0 ug/kg/h dose of vasopressor", ">635 ml dose of iv fluid"],
+        [">0-0.110 ug/kg/h dose of vasopressor", ">635 ml dose of iv fluid"],
+        ["0.110-0.225 ug/kg/h dose of vasopressor", ">635 ml dose of iv fluid"],
+        ["0.225-0.450 ug/kg/h dose of vasopressor", ">635 ml dose of iv fluid"],
+        [">0.450 ug/kg/h dose of vasopressor", ">635 ml dose of iv fluid"],
+      ];
+
+      $(document).ready(function () {
+        fetchVitalData();
+        setInterval(fetchNextData, 6000);
+      });
+
+      function predict() {}
+
+      function fetchVitalData() {
+        $.ajax({
+          url: "/get_treatment_recommendation_data/{{ bed_id }}",
+          type: "GET",
+          success: function (data) {
+            dataVital = data;
+            initializeChart();
+          },
+          error: function (err) {
+            console.error("Error fetching data: ", err);
+          },
+        });
+      }
+
+      function fetchNextData() {
+        if (dataVital.length > 0) {
+          if (currentIndex < dataVital.length - 1) {
+            updateData();
+            console.log(dataInput);
+            currentIndex++;
+          }
+        }
+      }
+
+      function initializeChart() {
+        let ctx = $("#chart").get(0).getContext("2d");
+
+        chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: ["", "", "", "", ""],
+            datasets: [
+              {
+                label: "Heart Rate",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(2, 62, 138, 1)",
+                borderColor: "rgba(2, 62, 138, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "Respiratory Rate",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(0, 150, 199, 1)",
+                borderColor: "rgba(0, 150, 199, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "SpO2",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(0, 180, 216, 1)",
+                borderColor: "rgba(0, 180, 216, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "Systolic BP",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(255, 143, 163, 1)",
+                borderColor: "rgba(255, 143, 163, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "Diastolic BP",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(255, 77, 109, 1)",
+                borderColor: "rgba(255, 77, 109, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "Mean BP",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(201, 24, 74, 1)",
+                borderColor: "rgba(201, 24, 74, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "GCS",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(216, 87, 42, 1)",
+                borderColor: "rgba(216, 87, 42, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "SOFA",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(219, 124, 38, 1)",
+                borderColor: "rgba(219, 124, 38, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "SIRS",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(247, 181, 56, 1)",
+                borderColor: "rgba(247, 181, 56, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                display: true,
+              },
+              y: {
+                beginAtZero: true,
+              },
+            },
+            animation: false,
+          },
+        });
+      }
+
+      function updateData() {
+        if (dataVital.length > 0) {
+          if (chart.data.labels.length >= 5) {
+            chart.data.labels.shift();
+            chart.data.datasets.forEach(function (dataset) {
+              dataset.data.shift();
+            });
+          }
+
+          chart.data.labels.push(dataVital[currentIndex].charttime);
+          chart.data.datasets[0].data.push(dataVital[currentIndex].HR);
+          chart.data.datasets[1].data.push(dataVital[currentIndex].RR);
+          chart.data.datasets[2].data.push(dataVital[currentIndex].SpO2);
+          chart.data.datasets[3].data.push(dataVital[currentIndex].SysBP);
+          chart.data.datasets[4].data.push(dataVital[currentIndex].DiaBP);
+          chart.data.datasets[5].data.push(dataVital[currentIndex].MeanBP);
+          chart.data.datasets[6].data.push(dataVital[currentIndex].GCS);
+          chart.data.datasets[7].data.push(dataVital[currentIndex].SOFA);
+          chart.data.datasets[8].data.push(dataVital[currentIndex].SIRS);
+
+          chart.update();
+
+          dataInput = {
+            gender: dataVital[currentIndex].gender,
+            mechvent: dataVital[currentIndex].mechvent,
+            max_dose_vaso: dataVital[currentIndex].max_dose_vaso,
+            re_admission: dataVital[currentIndex].re_admission,
+            age: dataVital[currentIndex].age,
+            Weight_kg: dataVital[currentIndex].Weight_kg,
+            GCS: dataVital[currentIndex].GCS,
+            HR: dataVital[currentIndex].HR,
+            SysBP: dataVital[currentIndex].SysBP,
+            MeanBP: dataVital[currentIndex].MeanBP,
+            DiaBP: dataVital[currentIndex].DiaBP,
+            RR: dataVital[currentIndex].RR,
+            Temp_C: dataVital[currentIndex].Temp_C,
+            FiO2_1: dataVital[currentIndex].FiO2_1,
+            Potassium: dataVital[currentIndex].Potassium,
+            Sodium: dataVital[currentIndex].Sodium,
+            Chloride: dataVital[currentIndex].Chloride,
+            Glucose: dataVital[currentIndex].Glucose,
+            Magnesium: dataVital[currentIndex].Magnesium,
+            Calcium: dataVital[currentIndex].Calcium,
+            Hb: dataVital[currentIndex].Hb,
+            WBC_count: dataVital[currentIndex].WBC_count,
+            Platelets_count: dataVital[currentIndex].Platelets_count,
+            PTT: dataVital[currentIndex].PTT,
+            PT: dataVital[currentIndex].PT,
+            Arterial_pH: dataVital[currentIndex].Arterial_pH,
+            paO2: dataVital[currentIndex].paO2,
+            paCO2: dataVital[currentIndex].paCO2,
+            Arterial_BE: dataVital[currentIndex].Arterial_BE,
+            HCO3: dataVital[currentIndex].HCO3,
+            Arterial_lactate: dataVital[currentIndex].Arterial_lactate,
+            SOFA: dataVital[currentIndex].SOFA,
+            SIRS: dataVital[currentIndex].SIRS,
+            Shock_Index: dataVital[currentIndex].Shock_Index,
+            PaO2_FiO2: dataVital[currentIndex].PaO2_FiO2,
+            cumulated_balance: dataVital[currentIndex].cumulated_balance,
+            SpO2: dataVital[currentIndex].SpO2,
+            BUN: dataVital[currentIndex].BUN,
+            Creatinine: dataVital[currentIndex].Creatinine,
+            SGOT: dataVital[currentIndex].SGOT,
+            SGPT: dataVital[currentIndex].SGPT,
+            Total_bili: dataVital[currentIndex].Total_bili,
+            INR: dataVital[currentIndex].INR,
+            input_total: dataVital[currentIndex].input_total,
+            input_4hourly: dataVital[currentIndex].input_4hourly,
+            output_total: dataVital[currentIndex].output_total,
+            output_4hourly: dataVital[currentIndex].output_4hourly,
+          };
+          $.ajax({
+            url: "/predict",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(dataInput),
+            success: function (response) {
+              $("#clincian").text(
+                `${physicianAction[response.Physician_Action][0]} | ${
+                  physicianAction[response.Physician_Action][1]
+                }`
+              );
+              $("#ai").text(
+                `${recommendations[response.Recommended_Action][0]} | ${
+                  recommendations[response.Recommended_Action][1]
+                }`
+              );
+            },
+            error: function (error) {
+              console.error("Terjadi kesalahan:", error.responseJSON.error);
+            },
+          });
+        }
+      }
+    </script>
+  </head>
+
+  <body class="with-welcome-text">
+    <div class="container-scroller">
+     
+          {% include "tamplate/navbar.html" %}
+
+      <div class="container-fluid page-body-wrapper">
+        {% include "tamplate/sidebar.html" %} {% include "tamplate/tabbar.html"
+        %}
+        <!--Chart Treatment Recommendation-->
+        <div class="col-md-8 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title"></h4>
+              <canvas id="chart" style="height: 100%; width: 100%"></canvas>
+            </div>
+          </div>
+        </div>
+        <!--End Chart Treatment Recommendation-->
+
+        <div class="col-md-4 grid-margin stretch-card">
+          <div class="card bg-primary">
+            <div class="card-body">
+              <h3 class="card-title text-white">Recommendation 4 hour</h3>
+              <br>
+              <h3 class="card-title text-white">Clincian</h3>
+              <p class="card-description text-white" id="clincian">A ( | )</p>
+              <h3 class="card-title text-white">AI Recommendation</h3>
+              <p class="card-description text-white" id="ai">A ( | )</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-8 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title"></h4>
+              <canvas id="chart" style="height: 100%; width: 100%"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4 grid-margin stretch-card">
+          <div class="card bg-primary">
+            <div class="card-body">
+              <h3 class="card-title text-white">Recommendation 1 hour</h3>
+              <br>
+              <h3 class="card-title text-white">Clincian</h3>
+              <p class="card-description text-white" id="clincian">A ( | )</p>
+              <h3 class="card-title text-white">AI Recommendation</h3>
+              <p class="card-description text-white" id="ai">A ( | )</p>
+            </div>
+          </div>
+        </div>
+
+        {% include "tamplate/footer.html" %}
+      </div>
+    </div>
+  </body>
+</html>

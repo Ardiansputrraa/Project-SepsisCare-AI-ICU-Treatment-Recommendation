@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include 'tamplate/header.html'%}
+
+    <script>
+      $(document).ready(function () {
+        fetchSimilarityData();
+      });
+
+      function fetchSimilarityData() {
+        $.ajax({
+          url: "/get_similarity",
+          type: "GET",
+          success: function (data) {
+            $("#tableSimilarity").empty();
+            dataSimilarity = data;
+            for (let i = 0; i < dataSimilarity.length; i++) {
+              let tableTemp = `<div class="col-lg-3 grid-margin stretch-card">
+              <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column">
+                  <div class="mb-3 text-center">
+                    <i class="mdi mdi-file-account-outline text-primary display-1 d-block my-2"></i>
+                  </div>
+                  <h5 class="card-title text-center">Stay ID ${dataSimilarity[i].stayId}</h5>
+                    <ul class="list-unstyled text-muted small">
+                      <li>HADM ID: ${dataSimilarity[i].hadmId}</li>
+                      <li>ICD CODE: ${dataSimilarity[i].icdCode}</li>
+                      <li>Diagnosis: ${dataSimilarity[i].diagnosis}</li>
+                    </ul>
+                  <div class="text-center mt-auto">
+                    <button class="btn btn-warning" style="width: 100%; margin-top: 10px;" onclick="selectSimilarity('${dataSimilarity[i].stayId}')">View</button>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+                              $("#tableSimilarity").append(tableTemp);
+            }
+          },
+          error: function (err) {
+            console.error("Error fetching data: ", err);
+          },
+        });
+      }
+
+      function selectSimilarity(stayId) {
+        $.ajax({
+          type: "POST",
+          url: "/select_bed",  
+          data: JSON.stringify({ id: stayId }),
+          contentType: "application/json",
+          success: function(response) {         
+            window.location.href = '/summary/' + stayId;
+          },
+          error: function(error) {
+            console.error("Error:", error);
+          }
+        });
+      }
+    </script>
+  </head>
+  
+  <body class="with-welcome-text">
+    <div class="container-scroller">
+      
+      <!-- partial:partials/_navbar.html -->
+      <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex align-items-top flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
+          <div class="me-3">
+            <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-bs-toggle="minimize">
+              <span class="icon-menu"></span>
+            </button>
+          </div>
+          <div>
+            <a class="navbar-brand brand-logo" href="/">
+              <img src="{{url_for('static', filename='assets/images/favicon.png')}}" alt="logo" />
+            </a>
+            <a class="navbar-brand brand-logo-mini" href="/bed_selection">
+              
+            </a>
+          </div>
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-top">
+          <ul class="navbar-nav">
+            <li class="nav-item fw-semibold d-none d-lg-block ms-0">
+              <h1 class="welcome-text"><span class="text-warning fw-bold">Similarity</span></h1>
+            </li>
+          </ul>
+
+          {% include 'tamplate/navbar.html'%}
+          
+        </div>
+      </nav>
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+
+        {% include 'tamplate/sidebar.html'%}
+        
+        <!--Data Bed Selection-->
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="row" id="tableSimilarity">              
+
+              {% include 'tamplate/footer.html'%}
+        
+        </div>
+      </div>
+  </body>
+</html>

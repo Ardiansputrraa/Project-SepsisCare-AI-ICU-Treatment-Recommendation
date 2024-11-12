@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include 'tamplate/header.html'%}
+
+    <script>
+      function selectBed(bedId) {
+        $.ajax({
+          type: "POST",
+          url: "/select_bed",  
+          data: JSON.stringify({ id: bedId }),
+          contentType: "application/json",
+          success: function(response) {         
+            window.location.href = '/vital_patient/' + bedId;
+          },
+          error: function(error) {
+            console.error("Error:", error);
+          }
+        });
+      }
+    </script>
+  </head>
+  
+  <body class="with-welcome-text">
+    <div class="container-scroller">
+
+        {% include 'tamplate/navbar.html'%}
+        
+      <div class="container-fluid page-body-wrapper">
+
+        {% include 'tamplate/sidebar.html'%}
+        
+        <!--Data Bed Selection-->
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="row">
+              <div class="col-sm-12">
+                <div class="home-tab">
+                  <div class="d-sm-flex align-items-center justify-content-between border-bottom">
+                    <ul class="nav nav-tabs" role="tablist">
+                      <li class="nav-item">
+                        <a class="nav-link active ps-0" id="home-tab" data-bs-toggle="tab" href="#" role="tab" aria-controls="overview" aria-selected="true">ICU 501</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#" role="tab" aria-selected="false">ICU 502</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="contact-tab" data-bs-toggle="tab" href="#" role="tab" aria-selected="false">ICU 503</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link border-0" id="more-tab" data-bs-toggle="tab" href="#" role="tab" aria-selected="false">ICU 504</a>
+                      </li>
+                    </ul>
+                    <div>
+                      <div class="btn-wrapper">
+                        <a href="#" class="btn btn-otline-primary align-items-center"><i class="icon-share"></i> Share</a>
+                        <a href="#" class="btn btn-otline-primary"><i class="icon-printer"></i> Print</a>
+                        <a href="#" class="btn btn-primary text-white me-0"><i class="icon-download"></i> Export</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!--Bed Section-->
+              <div class="col-lg-3 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title text-primary">BED ICU 50100001</h4>
+                    <div class="text-center">
+                      <img src="{{url_for('static', filename='assets/images/bed-hospital.jpg')}}" alt="bed" class="img-fluid" alt="Gambar" style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="text-center">
+                      <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="selectBed('11.0')">Select</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title text-primary">BED ICU 50100002</h4>
+                    <div class="text-center">
+                      <img src="{{url_for('static', filename='assets/images/bed-hospital.jpg')}}" alt="bed" class="img-fluid" alt="Gambar" style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="text-center">
+                      <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="selectBed('12.0')">Select</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title text-primary">BED ICU 50100003</h4>
+                    <div class="text-center">
+                      <img src="{{url_for('static', filename='assets/images/bed-hospital.jpg')}}" alt="bed" class="img-fluid" alt="Gambar" style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="text-center">
+                      <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="selectBed('14.0')">Select</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title text-primary">BED ICU 50100004</h4>
+                    <div class="text-center">
+                      <img src="{{url_for('static', filename='assets/images/bed-hospital.jpg')}}" alt="bed" class="img-fluid" alt="Gambar" style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="text-center">
+                      <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="selectBed('30.0')">Select</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title text-primary">BED ICU 50100005</h4>
+                    <div class="text-center">
+                      <img src="{{url_for('static', filename='assets/images/bed-hospital.jpg')}}" alt="bed" class="img-fluid" alt="Gambar" style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="text-center">
+                      <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="selectBed('33.0')">Select</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title text-primary">BED ICU 50100006</h4>
+                    <div class="text-center">
+                      <img src="{{url_for('static', filename='assets/images/bed-hospital.jpg')}}" alt="bed" class="img-fluid" alt="Gambar" style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="text-center">
+                      <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="selectBed('49.0')">Select</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title text-primary">BED ICU 50100007</h4>
+                    <div class="text-center">
+                      <img src="{{url_for('static', filename='assets/images/bed-hospital.jpg')}}" alt="bed" class="img-fluid" alt="Gambar" style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="text-center">
+                      <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="selectBed('63.0')">Select</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title text-primary">BED ICU 50100008</h4>
+                    <div class="text-center">
+                      <img src="{{url_for('static', filename='assets/images/bed-hospital.jpg')}}" alt="bed" class="img-fluid" alt="Gambar" style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="text-center">
+                      <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="selectBed('65.0')">Select</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--End Bed Section-->
+              
+              {% include 'tamplate/footer.html'%}
+        
+        </div>
+      </div>
+  </body>
+</html>
