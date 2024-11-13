@@ -5,8 +5,11 @@
 
     <script>
       let currentIndex = 0;
+      let currentIndexHourly = 0;
       let chart;
+      let chartHourly;
       let dataVital = [];
+      let dataHourly = [];
       let dataInput = {};
       const physicianAction = [
         ["0 ug/kg/h dose of vasopressor", "0 ml dose of iv fluid"],
@@ -102,10 +105,25 @@
 
       $(document).ready(function () {
         fetchVitalData();
-        setInterval(fetchNextData, 6000);
+        fetchVitalDataHourly();
+        setInterval(fetchNextDataHourly, 6000);
+        setInterval(fetchNextData, 60000);
       });
 
-      function predict() {}
+      function fetchVitalDataHourly() {
+        $.ajax({
+          url: "/get_treatment_recommendation_data_hourly/{{ bed_id }}",
+          type: "GET",
+          success: function (data) {
+            dataHourly = data;
+            initializeChartHourly();
+            console.log(dataHourly)
+          },
+          error: function (err) {
+            console.error("Error fetching data: ", err);
+          },
+        });
+      }
 
       function fetchVitalData() {
         $.ajax({
@@ -125,10 +143,117 @@
         if (dataVital.length > 0) {
           if (currentIndex < dataVital.length - 1) {
             updateData();
-            console.log(dataInput);
             currentIndex++;
+            console.log(dataHourly.sp.length)
           }
         }
+        
+      }
+
+      function fetchNextDataHourly() {
+        if (dataHourly.sp.length > 0) {
+          if (currentIndexHourly < dataHourly.sp.length - 1) {
+            updateDataHourly();
+            console.log(currentIndex)
+            console.log(dataHourly['heart_rate'][currentIndexHourly].Value);
+            currentIndexHourly++;
+          }
+        }
+      }
+
+      function initializeChartHourly() {
+        let ctxHourly = $("#chartHourly").get(0).getContext("2d");
+        chartHourly = new Chart(ctxHourly, {
+          type: "line",
+          data: {
+            labels: ["", "", "", "", ""],
+            datasets: [
+              {
+                label: "Heart Rate",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(2, 62, 138, 1)",
+                borderColor: "rgba(2, 62, 138, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "Respiratory Rate",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(0, 150, 199, 1)",
+                borderColor: "rgba(0, 150, 199, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "SpO2",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(0, 180, 216, 1)",
+                borderColor: "rgba(0, 180, 216, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "Systolic BP",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(255, 143, 163, 1)",
+                borderColor: "rgba(255, 143, 163, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "Diastolic BP",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(255, 77, 109, 1)",
+                borderColor: "rgba(255, 77, 109, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "Mean BP",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(201, 24, 74, 1)",
+                borderColor: "rgba(201, 24, 74, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "GCS",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(216, 87, 42, 1)",
+                borderColor: "rgba(216, 87, 42, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "SOFA",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(219, 124, 38, 1)",
+                borderColor: "rgba(219, 124, 38, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+              {
+                label: "SIRS",
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: "rgba(247, 181, 56, 1)",
+                borderColor: "rgba(247, 181, 56, 1)",
+                pointStyle: "line",
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                display: true,
+              },
+              y: {
+                beginAtZero: true,
+              },
+            },
+            animation: false,
+          },
+        });
       }
 
       function initializeChart() {
@@ -225,6 +350,8 @@
             animation: false,
           },
         });
+
+        
       }
 
       function updateData() {
@@ -321,6 +448,25 @@
           });
         }
       }
+
+      function updateDataHourly() {
+        if (dataHourly.sp.length > 0) {
+          if (chartHourly.data.labels.length >= 5) {
+            chartHourly.data.labels.shift();
+            chartHourly.data.datasets.forEach(function (dataset) {
+              dataset.data.shift();
+            });
+          }
+          chartHourly.data.labels.push(dataHourly['heart_rate'][currentIndexHourly].charttime);
+          chartHourly.data.datasets[0].data.push(dataHourly['heart_rate'][currentIndexHourly].Value);
+          chartHourly.data.datasets[1].data.push(dataHourly['respiratory_rate'][currentIndexHourly].Value);
+          chartHourly.data.datasets[2].data.push(dataHourly['sp'][currentIndexHourly].Value);
+          chartHourly.data.datasets[3].data.push(dataHourly['systolic'][currentIndexHourly].Value);
+          chartHourly.data.datasets[4].data.push(dataHourly['diastolic'][currentIndexHourly].Value);
+          chartHourly.data.datasets[5].data.push(dataHourly['mean'][currentIndexHourly].Value);
+          chartHourly.data.datasets[6].data.push(dataHourly['gcs'][currentIndexHourly].Value);
+        }
+      }
     </script>
   </head>
 
@@ -360,7 +506,7 @@
           <div class="card">
             <div class="card-body">
               <h4 class="card-title"></h4>
-              <canvas id="chart" style="height: 100%; width: 100%"></canvas>
+              <canvas id="chartHourly" style="height: 100%; width: 100%"></canvas>
             </div>
           </div>
         </div>

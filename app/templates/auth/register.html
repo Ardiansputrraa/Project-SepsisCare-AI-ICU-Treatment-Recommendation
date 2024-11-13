@@ -54,7 +54,7 @@
 
         if (password === "") {
           $("#helpPassword")
-            .text("Please enter password!")
+            .text("Please enter your password!")
             .removeClass("is-safe")
             .addClass("is-danger");
           $("#password").focus();
@@ -77,13 +77,6 @@
             .addClass("is-danger");
           $("#password").focus();
           return;
-        }
-
-        if (is_password(password)) {
-          $("#helpPassword")
-            .text("This password can be used!")
-            .removeClass("is-danger")
-            .addClass("is-success");
         }
 
         if (confirmPassword === "") {
@@ -111,13 +104,6 @@
           return;
         }
 
-        if (confirmPassword === password) {
-          $("#helpConfirmPassword")
-            .text("Password is correct!")
-            .removeClass("is-safe")
-            .addClass("is-success");
-        }
-
         if (!isChecked) {
           Swal.fire({
             icon: "info",
@@ -129,6 +115,7 @@
               return;
             }
           });
+          return;
         }
 
         $.ajax({
@@ -164,7 +151,7 @@
                 confirmButtonText: "Oke",
               }).then((result) => {
                 if (result.isConfirmed) {
-                  window.location.replace("/dashboard");
+                  window.location.replace("/sign_up");
                 }
               });
             }
@@ -261,7 +248,7 @@
                     <button
                       type="button"
                       onclick="window.location.href='/bed_selection'"
-                      class="btn btn-block btn-outline-warning btn-lg fw-medium auth-form-btn"
+                      class="btn btn-block btn-outline-primary btn-lg fw-medium auth-form-btn"
                     >
                       BACK
                     </button>
