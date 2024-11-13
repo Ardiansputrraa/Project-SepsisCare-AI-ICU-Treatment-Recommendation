@@ -45,7 +45,17 @@ def sign_in_check():
 
 @auth_.route('/sign_up')
 def sign_up():
-    return render_template('auth/register.html')
+    myToken = request.cookies.get("mytoken")
+    SECRET_KEY = current_app.config['SECRET_KEY']
+    try:
+        payload = jwt.decode(myToken, SECRET_KEY, algorithms=["HS256"])
+        user_info = current_app.db.users.find_one({"email": payload["id"]})
+        return render_template('auth/register.html', user_info=user_info)
+    except jwt.ExpiredSignatureError:
+        return redirect(url_for("auth.sign_in", msg="Login time has expired!"))
+    except jwt.exceptions.DecodeError:
+        return redirect(url_for("auth.sign_in", msg="Please login first!"))
+    
 
 @auth_.route("/sign_up/save", methods=["POST"])
 def sign_up_save():

@@ -10,7 +10,7 @@
     
       $(document).ready(function () {
         fetchVitalData();
-        setInterval(fetchNextData, 6000);
+        setInterval(fetchNextData, 60000);
       });
     
       function fetchVitalData() {
@@ -62,7 +62,7 @@
     
         chartHeart = createChart($("#heart").get(0).getContext("2d"), "Heart Rate", "rgba(2, 62, 138, 1)", "rgba(2, 62, 138, 1)");
         chartRespiratory = createChart($("#respiratory").get(0).getContext("2d"), "Respiratory Rate", "rgba(0, 150, 199, 1)", "rgba(0, 150, 199, 1)");
-        chartSp = createChart($("#sp").get(0).getContext("2d"), "Sp02", "rgba(0, 180, 216, 1)", "rgba(0, 180, 216, 1)");
+        chartSp = createChart($("#sp").get(0).getContext("2d"), "SpO2", "rgba(0, 180, 216, 1)", "rgba(0, 180, 216, 1)");
         chartSystolic = createChart($("#systolic").get(0).getContext("2d"), "Systolic BP", "rgba(255, 143, 163, 1)", "rgba(255, 143, 163, 1)");
         chartDiastolic = createChart($("#diastolic").get(0).getContext("2d"), "Diastolic BP", "rgba(255, 77, 109, 1)", "rgba(255, 77, 109, 1)");
         chartMean = createChart($("#mean").get(0).getContext("2d"), "Mean BP", "rgba(201, 24, 74, 1)", "rgba(201, 24, 74, 1)");
